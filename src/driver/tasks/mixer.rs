@@ -20,7 +20,10 @@ use rand::random;
 use std::{convert::TryInto, time::Instant};
 use tokio::runtime::Handle;
 use tracing::{debug, error, instrument};
-use xsalsa20poly1305::TAG_SIZE;
+use crypto_secretbox::XSalsa20Poly1305 as Cipher;
+
+/// Size of a Poly1305 tag in bytes
+const TAG_SIZE: usize = Cipher::TAG_SIZE;
 
 pub struct Mixer {
     pub async_handle: Handle,

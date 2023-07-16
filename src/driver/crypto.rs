@@ -3,14 +3,18 @@ use byteorder::{NetworkEndian, WriteBytesExt};
 use discortp::{rtp::RtpPacket, MutablePacket};
 use rand::Rng;
 use std::num::Wrapping;
-use xsalsa20poly1305::{
+use crypto_secretbox::{
     aead::{AeadInPlace, Error as CryptoError},
     Nonce,
     Tag,
     XSalsa20Poly1305 as Cipher,
-    NONCE_SIZE,
-    TAG_SIZE,
 };
+
+/// Size of an XSalsa20Poly1305 nonce in bytes
+const NONCE_SIZE: usize = Cipher::NONCE_SIZE;
+
+/// Size of a Poly1305 tag in bytes
+const TAG_SIZE: usize = Cipher::TAG_SIZE;
 
 /// Variants of the XSalsa20Poly1305 encryption scheme.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -242,7 +246,7 @@ impl CryptoState {
 mod test {
     use super::*;
     use discortp::rtp::MutableRtpPacket;
-    use xsalsa20poly1305::{aead::NewAead, KEY_SIZE, TAG_SIZE};
+    use crypto_secretbox::{aead::NewAead, KEY_SIZE, TAG_SIZE};
 
     #[test]
     fn small_packet_decrypts_error() {

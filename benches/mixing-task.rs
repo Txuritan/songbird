@@ -18,7 +18,9 @@ use songbird::{
     tracks,
 };
 use tokio::runtime::{Handle, Runtime};
-use xsalsa20poly1305::{aead::NewAead, XSalsa20Poly1305 as Cipher, KEY_SIZE};
+use crypto_secretbox::{aead::NewAead, XSalsa20Poly1305 as Cipher, KeyInit};
+
+const KEY_SIZE: usize = Cipher::KEY_SIZE;
 
 // create a dummied task + interconnect.
 // measure perf at varying numbers of sources (binary 1--64) without passthrough support.

@@ -7,7 +7,7 @@ use crate::{
     tracks::Track,
 };
 use flume::Sender;
-use xsalsa20poly1305::XSalsa20Poly1305 as Cipher;
+use crypto_secretbox::XSalsa20Poly1305 as Cipher;
 
 pub struct MixerConnection {
     pub cipher: Cipher,

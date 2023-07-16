@@ -8,7 +8,7 @@ use flume::SendError;
 use serde_json::Error as JsonError;
 use std::{error::Error as StdError, fmt, io::Error as IoError};
 use tokio::time::error::Elapsed;
-use xsalsa20poly1305::aead::Error as CryptoError;
+use crypto_secretbox::aead::Error as CryptoError;
 
 /// Errors encountered while connecting to a Discord voice server over the driver.
 #[derive(Debug)]
@@ -19,6 +19,8 @@ pub enum Error {
     AttemptDiscarded,
     /// An error occurred during [en/de]cryption of voice packets or key generation.
     Crypto(CryptoError),
+    /// Given key does not ahve the right length.
+    CryptoInvalidLength(crypto_common::InvalidLength),
     /// Server did not return the expected crypto mode during negotiation.
     CryptoModeInvalid,
     /// Selected crypto mode was not offered by server.
@@ -44,6 +46,12 @@ pub enum Error {
 impl From<CryptoError> for Error {
     fn from(e: CryptoError) -> Self {
         Error::Crypto(e)
+    }
+}
+
+impl From<crypto_common::InvalidLength> for Error {
+    fn from(e: crypto_common::InvalidLength) -> Self {
+        Error::CryptoInvalidLength(e)
     }
 }
 
@@ -96,6 +104,7 @@ impl fmt::Display for Error {
         match self {
             AttemptDiscarded => write!(f, "connection attempt was aborted/discarded"),
             Crypto(e) => e.fmt(f),
+            CryptoInvalidLength(e) => e.fmt(f),
             CryptoModeInvalid => write!(f, "server changed negotiated encryption mode"),
             CryptoModeUnavailable => write!(f, "server did not offer chosen encryption mode"),
             EndpointUrl => write!(f, "endpoint URL received from gateway was invalid"),
@@ -115,6 +124,7 @@ impl StdError for Error {
         match self {
             Error::AttemptDiscarded => None,
             Error::Crypto(e) => e.source(),
+            Error::CryptoInvalidLength(e) => e.source(),
             Error::CryptoModeInvalid => None,
             Error::CryptoModeUnavailable => None,
             Error::EndpointUrl => None,

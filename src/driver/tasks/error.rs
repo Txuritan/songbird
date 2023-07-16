@@ -3,7 +3,7 @@ use crate::ws::Error as WsError;
 use audiopus::Error as OpusError;
 use flume::SendError;
 use std::io::Error as IoError;
-use xsalsa20poly1305::aead::Error as CryptoError;
+use crypto_secretbox::aead::Error as CryptoError;
 
 #[derive(Debug)]
 pub enum Recipient {
